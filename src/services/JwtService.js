@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
+const User = require('../models/UserModel')
 
 dotenv.config()
 
@@ -19,7 +20,38 @@ const genneralRefreshToken = async (payload) => {
     return refresh_token
 }
 
+const refreshTokenJwtService  = (token) => {
+    return new Promise((resolve, reject) => {
+        try {
+            console.log('token', token)
+            jwt.verify(token, process.env.REFRESH_TOKEN, async (err, user) => {
+                if (err) {
+                    console.log('err', err)
+                    resolve({
+                        status: 'ERROR',
+                        message: 'the authemtication'
+                    })
+                }
+                const { payload }  = user
+                const access_token = await genneralAccessToken({
+                    id: payload?.id,
+                    idAdmin: payload?.isAdmin
+                })
+                console.log('access_token', access_token)
+                resolve({
+                    status: 'OK',
+                    message: 'SUCCESS',
+                    access_token
+                })
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     genneralAccessToken,
-    genneralRefreshToken
+    genneralRefreshToken,
+    refreshTokenJwtService 
 }
