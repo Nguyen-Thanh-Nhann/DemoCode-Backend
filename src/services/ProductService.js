@@ -102,11 +102,36 @@ const getDetailsProduct = (id) => {
     })
 }
 
-const getAllProduct = (limit = 8, page = 0) => {
+const getAllProduct = (limit, page, sort, filter ) => {
     return new Promise(async (resolve, reject) => {
         try {
             //ham count trong ban moi mongoose da ko con dung dc nen thay count bang countdoccument
             const totalProduct = await Product.countDocuments()
+            if (filter) {
+                const label = filter[0];
+                const allObjectFilter = await Product.find({ [label]: { '$regex': filter[1] } }).limit(limit).skip(page * limit)
+                resolve({
+                    status: 'OK',
+                    message: 'Success',
+                    data: allObjectFilter,
+                    total: totalProduct,
+                    pageCurrent: Number(page + 1),
+                    totalPage: Math.ceil(totalProduct / limit)
+                })
+            }
+            if (sort) {
+                const objectSort = {}
+                objectSort[sort[1]] = sort[0]
+                const allProductSort = await Product.find().limit(limit).skip(page * limit).sort(objectSort)
+                resolve({
+                    status: 'OK',
+                    message: 'Success',
+                    data: allProductSort,
+                    total: totalProduct,
+                    pageCurrent: Number(page + 1),
+                    totalPage: Math.ceil(totalProduct / limit)
+                })
+            }
             const allProduct = await Product.find().limit(limit).skip(page * limit)
             resolve({
                 status: 'OK',
@@ -115,7 +140,6 @@ const getAllProduct = (limit = 8, page = 0) => {
                 total: totalProduct,
                 pageCurrent: Number(page + 1),
                 totalPage: Math.ceil(totalProduct / limit)
-
             })
         } catch (e) {
             reject(e)
