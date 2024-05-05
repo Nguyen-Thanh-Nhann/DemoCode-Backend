@@ -31,6 +31,7 @@ const createUser = async (req, res) => {
     }
 }
 
+
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
@@ -100,6 +101,25 @@ const deleteUser = async (req, res) => {
     }
 }
 
+const deleteMany = async (req, res) => {
+    try {
+        const ids = req.body.ids
+        if (!ids) {
+            return res.status(200).json({
+                status: 'ERR',
+                message: 'The ids is required'
+            })
+        }
+        const response = await UserService.deleteManyUser(ids)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
+
 const getAllUser = async (req, res) => {
     try {
         const response = await UserService.getAllUser()
@@ -130,8 +150,9 @@ const getDetailsUser = async (req, res) => {
 }
 
 const refreshToken = async (req, res) => {
+
     try {
-        let token = req.headers.token.split(' ')[1]
+        let token = req.cookies.refresh_token
         if (!token) {
             return res.status(200).json({
                 status: 'ERR',
@@ -147,6 +168,20 @@ const refreshToken = async (req, res) => {
     }
 }
 
+
+const logoutUser = async (req, res) => {
+    try {
+        res.clearCookie('refresh_token')
+        return res.status(200).json({
+            status: 'OK',
+            message: 'Logout successfully'
+        })
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
 module.exports = {
     createUser,
     loginUser,
@@ -154,5 +189,7 @@ module.exports = {
     deleteUser,
     getAllUser,
     getDetailsUser,
-    refreshToken
+    refreshToken,
+    logoutUser,
+    deleteMany
 }

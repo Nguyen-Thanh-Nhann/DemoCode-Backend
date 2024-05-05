@@ -1,6 +1,6 @@
-const User = require('../models/UserModel')
+const User = require("../models/UserModel")
 const bcrypt = require("bcrypt")
-const { genneralAccessToken, genneralRefreshToken } = require('./JwtService')
+const { genneralAccessToken, genneralRefreshToken } = require("./JwtService")
 
 const createUser = (newUser) => {
     return new Promise(async (resolve, reject) => {
@@ -34,6 +34,7 @@ const createUser = (newUser) => {
         }
     })
 }
+
 const loginUser = (userLogin) => {
     return new Promise(async (resolve, reject) => {
         const { email, password } = userLogin
@@ -76,6 +77,7 @@ const loginUser = (userLogin) => {
         }
     })
 }
+
 const updateUser = (id, data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -117,7 +119,7 @@ const deleteUser = (id) => {
             await User.findByIdAndDelete(id)
             resolve({
                 status: 'OK',
-                message: 'DELETE USER SUCCESS',
+                message: 'Delete user success',
             })
         } catch (e) {
             reject(e)
@@ -125,12 +127,25 @@ const deleteUser = (id) => {
     })
 }
 
+const deleteManyUser = (ids) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            await User.deleteMany({ _id: ids })
+            resolve({
+                status: 'OK',
+                message: 'Delete user success',
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
 
 const getAllUser = () => {
     return new Promise(async (resolve, reject) => {
         try {
-
-            const allUser = await User.find()
+            const allUser = await User.find().sort({createdAt: -1, updatedAt: -1})
             resolve({
                 status: 'OK',
                 message: 'Success',
@@ -141,7 +156,6 @@ const getAllUser = () => {
         }
     })
 }
-
 
 const getDetailsUser = (id) => {
     return new Promise(async (resolve, reject) => {
@@ -155,10 +169,9 @@ const getDetailsUser = (id) => {
                     message: 'The user is not defined'
                 })
             }
-
             resolve({
                 status: 'OK',
-                message: 'SUCCESS',
+                message: 'SUCESS',
                 data: user
             })
         } catch (e) {
@@ -167,14 +180,12 @@ const getDetailsUser = (id) => {
     })
 }
 
-
-
 module.exports = {
     createUser,
     loginUser,
     updateUser,
     deleteUser,
     getAllUser,
-    getDetailsUser
-    
+    getDetailsUser,
+    deleteManyUser
 }
